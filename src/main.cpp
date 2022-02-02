@@ -28,6 +28,7 @@ void setup() {
 
   #ifdef LED_BUILTIN
   pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
   #endif
 
   Vindriktning::setup();
