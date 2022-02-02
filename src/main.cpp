@@ -5,12 +5,11 @@
 #  define SERIAL_SPEED 9600
 #endif
 
+#include "state.h"
+#include "web.h"
 #include "vindriktning.h"
 
-struct {
-  char hostname[24];
-  Vindriktning::pm25_t pm25 = 0;
-} global_state;
+struct state_t global_state;
 
 void print_startup_header() {
   #ifdef ESP32
@@ -55,6 +54,8 @@ void setup() {
   // This is blocking! Will not go further ahead until we can connect
   // to a wifi.
   setup_wifi();
+
+  Web::setup(&global_state);
 }
 
 void loop() {
@@ -64,4 +65,6 @@ void loop() {
     global_state.pm25 = pm25;
     Serial.printf("pm2.5: %u\n", global_state.pm25);
   }
+
+  Web::handle();
 }

@@ -1,5 +1,5 @@
-#ifndef VINDRIKTNING_H
-#define VINDRIKTNING_H
+#ifndef __VINDRIKTNING_H
+#define __VINDRIKTNING_H
 
 #if !defined(PIN_UART_RX)
 #  define PIN_UART_RX /*GPIO*/4 // Default to D2 on D1 mini
@@ -104,4 +104,4 @@ namespace Vindriktning {
   }
 }
 
-#endif /* VINDRIKTNING_H */
+#endif /* __VINDRIKTNING_H */
