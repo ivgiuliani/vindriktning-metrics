@@ -6,8 +6,6 @@
 
 #include "vindriktning.h"
 
-Vindriktning::pm1006_data_t state;
-
 void print_startup_header() {
   #ifdef ESP32
   Serial.printf("versions: core=%s\n", esp_get_idf_version());
@@ -36,12 +34,9 @@ void setup() {
 }
 
 void loop() {
-  Vindriktning::update(state);
+  Vindriktning::pm25_t pm25 = Vindriktning::update();
 
-  if (state.valid & Vindriktning::VALUE_PM1)
-    Serial.printf("pm1: %u\n", state.pm1);
-  if (state.valid & Vindriktning::VALUE_PM25)
-    Serial.printf("pm2.5: %u\n", state.pm25);
-  if (state.valid & Vindriktning::VALUE_PM10)
-    Serial.printf("pm10: %u\n", state.pm10);
+  if (pm25 > 0) {
+    Serial.printf("pm2.5: %u\n", pm25);
+  }
 }

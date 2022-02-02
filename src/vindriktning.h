@@ -10,6 +10,8 @@
 #  define PIN_UART_TX /*GPIO*/13 // Default to D7 on D1 mini
 #endif
 
+#define PM1006_BAUD_RATE (9600)
+
 #if defined(ESP32)
 #  include <HardwareSerial.h>
 #  define _Serial HardwareSerial
@@ -22,20 +24,22 @@
 
 #include <Arduino.h>
 
-/* Based on https://github.com/obgm/pm1006 */
 namespace Vindriktning {
-  typedef enum {
-    VALUE_PM1  = 1,
-    VALUE_PM25 = 2,
-    VALUE_PM10 = 4,
-  } pm1006_value_t;
-
-  struct pm1006_data_t {
-    uint16_t pm1;
-    uint16_t pm25;
-    uint16_t pm10;
-    uint8_t valid;
+  /* http://www.jdscompany.co.kr/download.asp?gubun=07&filename=PM1006_LED_PARTICLE_SENSOR_MODULE_SPECIFICATIONS.pdf
+    * Payload looks like:
+    * 16 11 0B DF1 DF2 DF3 DF4 DF5 DF6 DF7 DF8 DF9 DF10 DF11 DF12 DF13 DF14 DF15 DF16[CS]
+    * |header |unused | pm25  | unsupported by pm1006, but needed for checksum          |
+    */
+  struct __attribute__((__packed__)) pm1006_payload_t {
+    uint8_t header[3];
+    uint8_t _unused1[2]; // DF1..DF2
+    uint8_t df3;
+    uint8_t df4;
+    uint8_t _unused2[12]; // DF5..DF16
+    uint8_t _cs; // CS
   };
+
+  typedef int16_t pm25_t;
 
   #ifdef ESP32
     _Serial serial(1);
@@ -43,83 +47,60 @@ namespace Vindriktning {
     _Serial serial(PIN_UART_RX, PIN_UART_TX);
   #endif
 
-  const bool inline is_valid_header(size_t rx_buf_size, uint8_t *rx_buffer) {
-    const bool is_valid =
-      rx_buf_size > 3 &&
-      rx_buffer[0] == 0x16 &&
-      rx_buffer[1] == 0x11 &&
-      rx_buffer[2] == 0x0b;
-
-    return is_valid;
+  const bool inline is_valid_header(struct pm1006_payload_t *payload) {
+    return payload->header[0] == 0x16 &&
+           payload->header[1] == 0x11 &&
+           payload->header[2] == 0x0b;
   }
   
-  const bool inline is_valid_checksum(size_t rx_buf_size, uint8_t *rx_buffer) {
-    uint8_t checksum = 0;
+  const bool inline is_valid_checksum(struct pm1006_payload_t *payload) {
+    uint8_t checksum = 0, idx = sizeof(struct pm1006_payload_t);
+    const char *buf = reinterpret_cast<char*>(payload);
 
-    while(rx_buf_size--) {
-      checksum += *rx_buffer++;
+    while(idx--) {
+      checksum += *buf++;
     }
     return checksum == 0;
   }
 
-  void parse(size_t rx_buf_size, uint8_t *rx_buffer, struct pm1006_data_t *result) {
-    memset(result, 0, sizeof(pm1006_data_t));
-    enum { DF3 = 5, DF4, DF5, DF6, DF7, DF8, DF9, DF10, DF11, DF12 };
-
-    if (rx_buf_size > DF4) {
-      result->pm25 = (rx_buffer[DF3] << 8) + rx_buffer[DF4];
-      result->valid |= VALUE_PM25;
-    }
-    if (rx_buf_size > DF8) {
-      result->pm1 = (rx_buffer[DF7] << 8) + rx_buffer[DF8];
-      result->valid |= VALUE_PM1;
-    }
-    if (rx_buf_size > DF12) {
-      result->pm10 = (rx_buffer[DF11] << 8) + rx_buffer[DF12];
-      result->valid |= VALUE_PM10;
-    }
-  }
-
   void setup() {
     #ifdef ESP32
-    serial.begin(9600, SERIAL_8N1, PIN_UART_RX, PIN_UART_TX);
+    serial.begin(PM1006_BAUD_RATE, SERIAL_8N1, PIN_UART_RX, PIN_UART_TX);
     #else
-    serial.begin(9600);
+    serial.begin(PM1006_BAUD_RATE);
     #endif
     while(!serial) { }
 
-    serial.setTimeout(100);
+    serial.setTimeout(1000);
 
     Serial.printf("vindriktning serial(rx=%d,tx=%d) ready.\n", PIN_UART_RX, PIN_UART_TX);
   }
 
-  void update(struct pm1006_data_t &state) {
-    if (!serial.available()) return;
-
-    uint8_t rx_buffer[PAYLOAD_SIZE];
-    size_t rx_buf_size = serial.readBytes(rx_buffer, sizeof(rx_buffer));
-    if (rx_buf_size <= 0) {
-      return;
+  const pm25_t update() {
+    if (!serial.available()) {
+      return -1;
     }
 
-    const bool valid_header = is_valid_header(rx_buf_size, rx_buffer);
-    const bool valid_checksum = is_valid_checksum(rx_buf_size, rx_buffer);
+    struct pm1006_payload_t payload;
+    size_t rx_buf_size = serial.readBytes(payload.header, sizeof(pm1006_payload_t));
+    if (rx_buf_size <= 0 || rx_buf_size != sizeof(pm1006_payload_t)) {
+      return -1;
+    }
 
-    if (!valid_header || !valid_checksum) {
-      Serial.printf("[err] header:%d checksum:%d || ", valid_header, valid_checksum);
-
-      if (rx_buf_size > 0 && (!valid_header || !valid_checksum)) {
-        Serial.printf("buf: ");
-        for (uint8_t i = 0; i < rx_buf_size; i++) {
-          Serial.printf("%02x ", rx_buffer[i]);
-        }
-        Serial.printf("\n");
+    const bool is_valid = is_valid_header(&payload) && is_valid_checksum(&payload);
+    if (!is_valid) {
+      const char *rx_buffer = reinterpret_cast<char*>(&payload);
+      Serial.printf("buf: ");
+      for (uint8_t i = 0; i < rx_buf_size; i++) {
+        Serial.printf("%02x ", rx_buffer[i]);
       }
+      Serial.printf("\n");
 
-      return;
+      return -1;
     }
 
-    parse(rx_buf_size, rx_buffer, &state);
+    // According to the datasheet, "PM2.5(μg/m³)= DF3*256+DF4"
+    return (payload.df3 << 8) | payload.df4;
   }
 }
 
