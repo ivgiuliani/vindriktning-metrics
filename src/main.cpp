@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <WiFiManager.h>
 
+#include "esp_generic.h"
+
 #if !defined(SERIAL_SPEED)
 #  define SERIAL_SPEED 9600
 #endif
@@ -12,10 +14,8 @@
 struct state_t global_state;
 
 void print_startup_header() {
-  #ifdef ESP32
-  Serial.printf("versions: core=%s\n", esp_get_idf_version());
-  #else
-  Serial.printf("versions: core=%s boot=%u\n", ESP.getCoreVersion().c_str(), ESP.getBootVersion());
+  Serial.printf("versions: type=%s core=%s\n", ESPG::chip_type(), ESPG::getESPVersion().c_str());
+  #ifndef ESP32
   Serial.printf("boot mode: %u\n", ESP.getBootMode());
   Serial.printf("cpu freq: %uMHz\n", ESP.getCpuFreqMHz());
   Serial.printf("reset reason: %s\n", ESP.getResetReason().c_str());
@@ -41,7 +41,7 @@ void setup() {
   Serial.setTimeout(2000);
   while(!Serial) { }
 
-  snprintf(global_state.hostname, sizeof(global_state.hostname), "VINDRIKTNING-%X", ESP.getChipId());
+  snprintf(global_state.hostname, sizeof(global_state.hostname), "VINDRIKTNING-%X", ESPG::chip_id());
   print_startup_header();
 
   #ifdef LED_BUILTIN

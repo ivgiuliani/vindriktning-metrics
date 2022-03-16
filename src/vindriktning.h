@@ -2,7 +2,7 @@
 #define __VINDRIKTNING_H
 
 #if !defined(PIN_UART_RX)
-#  define PIN_UART_RX /*GPIO*/4 // Default to D2 on D1 mini
+#  define PIN_UART_RX /*GPIO*/0 // Default to D3 on D1 mini
 #endif
 
 // tx is unused as we only read input values
@@ -90,7 +90,7 @@ namespace Vindriktning {
     const bool is_valid = is_valid_header(&payload) && is_valid_checksum(&payload);
     if (!is_valid) {
       const char *rx_buffer = reinterpret_cast<char*>(&payload);
-      Serial.printf("buf: ");
+      Serial.printf("[error] buf: ");
       for (uint8_t i = 0; i < rx_buf_size; i++) {
         Serial.printf("%02x ", rx_buffer[i]);
       }
