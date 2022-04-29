@@ -44,12 +44,26 @@ namespace Web {
       "vindriktning_core_version{source=\"%s\",version=\"%s\"} 1\n"
 
       "# TYPE vindriktning_pm25 gauge\n"
-      "vindriktning_pm25{source=\"%s\"} %d\n";
+      "vindriktning_pm25{source=\"%s\"} %d\n"
+
+      "# TYPE vindriktning_temperature gauge\n"
+      "vindriktning_temperature{source=\"%s\"} %0.2f\n"
+
+      "# TYPE vindriktning_humidity gauge\n"
+      "vindriktning_humidity{source=\"%s\"} %0.2f\n"
+
+      "# TYPE vindriktning_pressure gauge\n"
+      "vindriktning_pressure{source=\"%s\"} %0.2f\n"
+      ;
 
     char response[1024];
     snprintf(response, 1024, response_template,
       global_state->hostname, ESPG::getESPVersion(),
-      global_state->hostname, global_state->pm25);
+      global_state->hostname, global_state->pm25,
+      global_state->hostname, global_state->temperature,
+      global_state->hostname, global_state->humidity,
+      global_state->hostname, global_state->pressure
+    );
 
     server->send(200, "text/plain; charset=utf-8", response);
   }
