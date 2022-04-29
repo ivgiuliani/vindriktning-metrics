@@ -79,5 +79,7 @@ void loop() {
       bme_measurement->humidity);
   }
 
+  global_state.free_heap_size = ESPG::getFreeHeapSize();
+
   Web::handle();
 }

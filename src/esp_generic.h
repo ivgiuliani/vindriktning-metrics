@@ -34,6 +34,14 @@ namespace ESPG {
       return String(ESP.getCoreVersion().c_str());
     #endif
   }
+
+  static inline const uint32_t getFreeHeapSize() {
+    #ifdef ESP32
+      return ESP.getFreeHeap();
+    #else
+      return system_get_free_heap_size();
+    #endif
+  }
 };
 
 #endif
