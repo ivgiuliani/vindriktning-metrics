@@ -57,6 +57,12 @@ namespace Web {
 
       "# TYPE vindriktning_system_free_heap gauge\n"
       "vindriktning_system_free_heap{source=\"%s\"} %d\n"
+
+      "# TYPE vindriktning_system_pm1006_state gauge\n"
+      "vindriktning_system_pm1006_state{source=\"%s\"} %d\n"
+
+      "# TYPE vindriktning_system_bme280_state gauge\n"
+      "vindriktning_system_bme280_state{source=\"%s\"} %d\n"
       ;
 
     char response[1024];
@@ -66,7 +72,9 @@ namespace Web {
       global_state->hostname, global_state->temperature,
       global_state->hostname, global_state->humidity,
       global_state->hostname, global_state->pressure,
-      global_state->hostname, global_state->free_heap_size
+      global_state->hostname, global_state->free_heap_size,
+      global_state->hostname, global_state->pm1006_init_ok,
+      global_state->hostname, global_state->bme280_init_ok
     );
 
     server->send(200, "text/plain; charset=utf-8", response);
