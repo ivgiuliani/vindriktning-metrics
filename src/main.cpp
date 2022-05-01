@@ -49,8 +49,8 @@ void setup() {
   digitalWrite(LED_BUILTIN, LOW);
   #endif
 
-  Vindriktning::setup();
-  BME::setup();
+  global_state.pm1006_init_ok = Vindriktning::setup();
+  global_state.bme280_init_ok = BME::setup();
 
   // This is blocking! Will not go further ahead until we can connect
   // to a wifi.
@@ -60,23 +60,26 @@ void setup() {
 }
 
 void loop() {
-  Vindriktning::pm25_t pm25 = Vindriktning::update();
-  BME::measurement_t *bme_measurement = BME::update();
-
-  if (pm25 > 0) {
-    global_state.pm25 = pm25;
-    Serial.printf("pm2.5: %u\n", global_state.pm25);
+  if (global_state.pm1006_init_ok) {
+    Vindriktning::pm25_t pm25 = Vindriktning::update();
+    if (pm25 > 0) {
+      global_state.pm25 = pm25;
+      Serial.printf("pm2.5: %u\n", global_state.pm25);
+    }
   }
 
-  if (bme_measurement != NULL) {
-    global_state.temperature = bme_measurement->temperature;
-    global_state.pressure = bme_measurement->pressure;
-    global_state.humidity = bme_measurement->humidity;
+  if (global_state.bme280_init_ok) {
+    BME::measurement_t *bme_measurement = BME::update();
+    if (bme_measurement != NULL) {
+      global_state.temperature = bme_measurement->temperature;
+      global_state.pressure = bme_measurement->pressure;
+      global_state.humidity = bme_measurement->humidity;
 
-    Serial.printf("temperature=%.02fC  pressure=%.02fhPa  humidity=%.02f%%RH\n",
-      bme_measurement->temperature,
-      bme_measurement->pressure,
-      bme_measurement->humidity);
+      Serial.printf("temperature=%.02fC  pressure=%.02fhPa  humidity=%.02f%%RH\n",
+        bme_measurement->temperature,
+        bme_measurement->pressure,
+        bme_measurement->humidity);
+    }
   }
 
   global_state.free_heap_size = ESPG::getFreeHeapSize();

@@ -63,7 +63,7 @@ namespace Vindriktning {
     return checksum == 0;
   }
 
-  void setup() {
+  const bool setup() {
     #ifdef ESP32
     serial.begin(PM1006_BAUD_RATE, SERIAL_8N1, PIN_UART_RX, PIN_UART_TX);
     #else
@@ -74,6 +74,8 @@ namespace Vindriktning {
     serial.setTimeout(1000);
 
     Serial.printf("vindriktning serial(rx=%d,tx=%d) ready.\n", PIN_UART_RX, PIN_UART_TX);
+
+    return true;
   }
 
   const pm25_t update() {

@@ -27,11 +27,11 @@ namespace BME {
   uint16_t measurement_delay;
   long last_update = millis();
 
-  void setup(uint16_t measurement_delay_s = BME_DEFAULT_MEASUREMENT_DELAY) {
+  const bool setup(uint16_t measurement_delay_s = BME_DEFAULT_MEASUREMENT_DELAY) {
     Wire.begin();
-    while (!bme.begin(BME280_ADDRESS_ALTERNATE)) {  
+    if (!bme.begin(BME280_ADDRESS_ALTERNATE)) {
       Serial.println("Could not find a valid BME280 sensor, check wiring!");
-      delay(5000);
+      return false;
     }
 
     measurement_delay = measurement_delay_s;
@@ -42,6 +42,8 @@ namespace BME {
       Adafruit_BME280::SAMPLING_X1, // Humidity sampling set to 1
       Adafruit_BME280::FILTER_OFF   // Filter off - immediate 100% step response
     );
+
+    return true;
   }
 
   measurement_t *update() {
