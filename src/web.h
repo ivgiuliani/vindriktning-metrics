@@ -22,6 +22,12 @@
 #define HTTP_STATUS_OK_NO_CONTENT (204)
 #define HTTP_STATUS_NOT_FOUND     (404)
 
+#define METRIC(name, type) \
+  "# TYPE vindriktning_" name " " type "\n" \
+  "vindriktning_" name ""
+
+#define GAUGE(name) METRIC(name, "gauge")
+
 namespace Web {
   WebServer *server;
   struct state_t *global_state;
@@ -31,29 +37,17 @@ namespace Web {
   #endif
 
   static char const *metrics_response_template =
-    "# TYPE vindriktning_core_version gauge\n"
-    "vindriktning_core_version{source=\"%s\",version=\"%s\"} 1\n"
+    GAUGE("core_version") "{source=\"%s\",version=\"%s\"} 1\n"
 
-    "# TYPE vindriktning_pm25 gauge\n"
-    "vindriktning_pm25{source=\"%s\"} %d\n"
+    GAUGE("pm25") "{source=\"%s\"} %d\n"
 
-    "# TYPE vindriktning_temperature gauge\n"
-    "vindriktning_temperature{source=\"%s\"} %0.2f\n"
+    GAUGE("temperature") "{source=\"%s\"} %0.2f\n"
+    GAUGE("humidity")    "{source=\"%s\"} %0.2f\n"
+    GAUGE("pressure")    "{source=\"%s\"} %0.2f\n"
 
-    "# TYPE vindriktning_humidity gauge\n"
-    "vindriktning_humidity{source=\"%s\"} %0.2f\n"
-
-    "# TYPE vindriktning_pressure gauge\n"
-    "vindriktning_pressure{source=\"%s\"} %0.2f\n"
-
-    "# TYPE vindriktning_system_free_heap gauge\n"
-    "vindriktning_system_free_heap{source=\"%s\"} %d\n"
-
-    "# TYPE vindriktning_system_pm1006_state gauge\n"
-    "vindriktning_system_pm1006_state{source=\"%s\"} %d\n"
-
-    "# TYPE vindriktning_system_bme280_state gauge\n"
-    "vindriktning_system_bme280_state{source=\"%s\"} %d\n"
+    GAUGE("sytem_free_heap")    "{source=\"%s\"} %d\n"
+    GAUGE("sytem_pm1006_state") "{source=\"%s\"} %d\n"
+    GAUGE("sytem_bme280_state") "{source=\"%s\"} %d\n"
   ;
 
   inline void send_cors_headers() {
