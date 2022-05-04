@@ -15,6 +15,10 @@
 
 #define LOG_REQUEST(path) Serial.printf("[GET] " path "\n")
 
+#define HTTP_STATUS_OK            (200)
+#define HTTP_STATUS_OK_NO_CONTENT (204)
+#define HTTP_STATUS_NOT_FOUND     (404)
+
 namespace Web {
   WebServer *server;
   struct state_t *global_state;
@@ -58,7 +62,9 @@ namespace Web {
       // Disable CORS checks on not found as we don't have any other handler
       // for HTTP_OPTIONS
       send_cors_headers();
-      server->send(204);
+      server->send(HTTP_STATUS_OK_NO_CONTENT);
+    } else {
+      server->send(HTTP_STATUS_NOT_FOUND);
     }
   }
 
@@ -77,7 +83,7 @@ namespace Web {
       global_state->hostname, global_state->bme280_init_ok
     );
 
-    server->send(200, "text/plain; charset=utf-8", response);
+    server->send(HTTP_STATUS_OK, "text/plain; charset=utf-8", response);
   }
 
   void handle_factory_reset() {
