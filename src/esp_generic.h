@@ -42,6 +42,10 @@ namespace ESPG {
       return system_get_free_heap_size();
     #endif
   }
+
+  static inline const uint32_t getFreeSketchSpace() {
+    return ESP.getFreeSketchSpace();
+  }
 };
 
 #endif

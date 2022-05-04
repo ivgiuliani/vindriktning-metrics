@@ -15,6 +15,7 @@ struct state_t {
 
   // system state
   uint16_t free_heap_size = 0;
+  uint16_t free_sketch_size = 0;
 
   bool pm1006_init_ok = false;
   bool bme280_init_ok = false;

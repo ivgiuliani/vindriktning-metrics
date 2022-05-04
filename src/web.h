@@ -46,6 +46,7 @@ namespace Web {
     GAUGE("pressure")    "{source=\"%s\"} %0.2f\n"
 
     GAUGE("sytem_free_heap")    "{source=\"%s\"} %d\n"
+    GAUGE("sytem_free_sketch")    "{source=\"%s\"} %d\n"
     GAUGE("sytem_pm1006_state") "{source=\"%s\"} %d\n"
     GAUGE("sytem_bme280_state") "{source=\"%s\"} %d\n"
   ;
@@ -80,6 +81,7 @@ namespace Web {
       global_state->hostname, global_state->humidity,
       global_state->hostname, global_state->pressure,
       global_state->hostname, global_state->free_heap_size,
+      global_state->hostname, global_state->free_sketch_size,
       global_state->hostname, global_state->pm1006_init_ok,
       global_state->hostname, global_state->bme280_init_ok
     );

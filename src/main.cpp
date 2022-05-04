@@ -84,6 +84,7 @@ void loop() {
   }
 
   global_state.free_heap_size = ESPG::getFreeHeapSize();
+  global_state.free_sketch_size = ESPG::getFreeSketchSpace();
 
   Web::handle();
 }
