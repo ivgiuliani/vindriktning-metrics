@@ -65,8 +65,8 @@ namespace Web {
       "vindriktning_system_bme280_state{source=\"%s\"} %d\n"
       ;
 
-    char response[1024];
-    snprintf(response, 1024, response_template,
+    char response[2048];
+    snprintf(response, 2048, response_template,
       global_state->hostname, ESPG::getESPVersion(),
       global_state->hostname, global_state->pm25,
       global_state->hostname, global_state->temperature,
