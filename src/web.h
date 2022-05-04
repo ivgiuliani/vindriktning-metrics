@@ -26,6 +26,10 @@ namespace Web {
   WebServer *server;
   struct state_t *global_state;
 
+  #ifndef ESP32
+  ESP8266HTTPUpdateServer http_ota_updater;
+  #endif
+
   static char const *metrics_response_template =
     "# TYPE vindriktning_core_version gauge\n"
     "vindriktning_core_version{source=\"%s\",version=\"%s\"} 1\n"
@@ -114,6 +118,7 @@ const char *ota = "/ota";
       mdns_hostname_set(global_state_ref->hostname);
     #else
       MDNS.begin(global_state_ref->hostname);
+      http_ota_updater.setup(server, "/ota");
     #endif
 
     server->onNotFound(handle_not_found);
