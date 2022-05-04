@@ -4,8 +4,11 @@
 #include <Arduino.h>
 #ifdef ESP32
 # include <WebServer.h>
+# include <ESPmDNS.h>
 #else
 # include <ESP8266WebServer.h>
+# include <ESP8266mDNS.h>
+# include <ESP8266HTTPUpdateServer.h>
 # define WebServer ESP8266WebServer
 #endif
 #include <WiFiManager.h>
@@ -89,23 +92,49 @@ namespace Web {
   void handle_factory_reset() {
     LOG_REQUEST("/reset");
 
+    #ifdef ESP32
+      mdns_free();
+    #endif
+
     // Clear wifi settings
     WiFi.persistent(true);
     WiFi.disconnect(true);
     ESP.restart();
   }
 
+const char *ota = "/ota";
   void setup(struct state_t *global_state_ref) {
     server = new WebServer(80);
+
+    #ifdef ESP32
+      esp_err_t err = mdns_init();
+      if (err) {
+        Serial.printf("MDNS Init failed: %d\n", err);
+      }
+      mdns_hostname_set(global_state_ref->hostname);
+    #else
+      MDNS.begin(global_state_ref->hostname);
+    #endif
+
     server->onNotFound(handle_not_found);
     server->on("/metrics", HTTP_GET, handle_metrics_request);
     server->on("/reset", HTTP_GET, handle_factory_reset);
     server->begin();
 
+    #ifdef ESP32
+      mdns_service_add(NULL, "_http", "_tcp", 80, NULL, 0);
+    #else
+      MDNS.addService("http", "tcp", 80);
+    #endif
+
     global_state = global_state_ref;
   }
 
   void handle() {
+    #ifndef ESP32
+      MDNS.update();
+    #endif
+
     server->handleClient();
   }
 }
