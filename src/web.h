@@ -45,10 +45,10 @@ namespace Web {
     GAUGE("humidity")    "{source=\"%s\"} %0.2f\n"
     GAUGE("pressure")    "{source=\"%s\"} %0.2f\n"
 
-    GAUGE("sytem_free_heap")    "{source=\"%s\"} %d\n"
-    GAUGE("sytem_free_sketch")    "{source=\"%s\"} %d\n"
-    GAUGE("sytem_pm1006_state") "{source=\"%s\"} %d\n"
-    GAUGE("sytem_bme280_state") "{source=\"%s\"} %d\n"
+    GAUGE("system_free_heap")    "{source=\"%s\"} %d\n"
+    GAUGE("system_free_sketch")  "{source=\"%s\"} %d\n"
+    GAUGE("system_pm1006_state") "{source=\"%s\"} %d\n"
+    GAUGE("system_bme280_state") "{source=\"%s\"} %d\n"
   ;
 
   inline void send_cors_headers() {
