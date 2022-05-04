@@ -57,6 +57,7 @@ void setup() {
   setup_wifi();
 
   Web::setup(&global_state);
+  Serial.println(F("post wifi init ok."));
 }
 
 void loop() {
