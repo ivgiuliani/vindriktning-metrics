@@ -26,7 +26,7 @@ namespace BME {
   } last_measurement;
 
   uint16_t measurement_delay;
-  long last_update = millis();
+  long last_update = 0;
 
   const bool setup(uint16_t measurement_delay_s = BME_DEFAULT_MEASUREMENT_DELAY) {
     Wire.begin();
