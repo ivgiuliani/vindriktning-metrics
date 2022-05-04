@@ -102,7 +102,6 @@ namespace Web {
     ESP.restart();
   }
 
-const char *ota = "/ota";
   void setup(struct state_t *global_state_ref) {
     server = new WebServer(80);
 
