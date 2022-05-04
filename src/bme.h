@@ -17,6 +17,7 @@ namespace BME {
   typedef float humidity_rh_perc_t;
 
   Adafruit_BME280 bme; // I2C
+  bool init_ok = false;
 
   struct measurement_t {
     temperature_c_t temperature;
@@ -43,11 +44,16 @@ namespace BME {
       Adafruit_BME280::FILTER_OFF   // Filter off - immediate 100% step response
     );
 
+    init_ok = true;
     return true;
   }
 
   measurement_t *update() {
     const long now = millis();
+
+    if (!init_ok) {
+      return NULL;
+    }
 
     if (last_update > 0 && (now - last_update) <= measurement_delay) {
       return NULL;
