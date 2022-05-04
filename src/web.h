@@ -19,6 +19,32 @@ namespace Web {
   WebServer *server;
   struct state_t *global_state;
 
+  static char const *metrics_response_template =
+    "# TYPE vindriktning_core_version gauge\n"
+    "vindriktning_core_version{source=\"%s\",version=\"%s\"} 1\n"
+
+    "# TYPE vindriktning_pm25 gauge\n"
+    "vindriktning_pm25{source=\"%s\"} %d\n"
+
+    "# TYPE vindriktning_temperature gauge\n"
+    "vindriktning_temperature{source=\"%s\"} %0.2f\n"
+
+    "# TYPE vindriktning_humidity gauge\n"
+    "vindriktning_humidity{source=\"%s\"} %0.2f\n"
+
+    "# TYPE vindriktning_pressure gauge\n"
+    "vindriktning_pressure{source=\"%s\"} %0.2f\n"
+
+    "# TYPE vindriktning_system_free_heap gauge\n"
+    "vindriktning_system_free_heap{source=\"%s\"} %d\n"
+
+    "# TYPE vindriktning_system_pm1006_state gauge\n"
+    "vindriktning_system_pm1006_state{source=\"%s\"} %d\n"
+
+    "# TYPE vindriktning_system_bme280_state gauge\n"
+    "vindriktning_system_bme280_state{source=\"%s\"} %d\n"
+  ;
+
   inline void send_cors_headers() {
     // We don't want CORS for an air quality monitor...
     server->sendHeader("Access-Control-Allow-Origin", "*");
@@ -39,34 +65,8 @@ namespace Web {
   void handle_metrics_request() {
     LOG_REQUEST("/metrics");
 
-    static char const *response_template =
-      "# TYPE vindriktning_core_version gauge\n"
-      "vindriktning_core_version{source=\"%s\",version=\"%s\"} 1\n"
-
-      "# TYPE vindriktning_pm25 gauge\n"
-      "vindriktning_pm25{source=\"%s\"} %d\n"
-
-      "# TYPE vindriktning_temperature gauge\n"
-      "vindriktning_temperature{source=\"%s\"} %0.2f\n"
-
-      "# TYPE vindriktning_humidity gauge\n"
-      "vindriktning_humidity{source=\"%s\"} %0.2f\n"
-
-      "# TYPE vindriktning_pressure gauge\n"
-      "vindriktning_pressure{source=\"%s\"} %0.2f\n"
-
-      "# TYPE vindriktning_system_free_heap gauge\n"
-      "vindriktning_system_free_heap{source=\"%s\"} %d\n"
-
-      "# TYPE vindriktning_system_pm1006_state gauge\n"
-      "vindriktning_system_pm1006_state{source=\"%s\"} %d\n"
-
-      "# TYPE vindriktning_system_bme280_state gauge\n"
-      "vindriktning_system_bme280_state{source=\"%s\"} %d\n"
-      ;
-
     char response[2048];
-    snprintf(response, 2048, response_template,
+    snprintf(response, 2048, metrics_response_template,
       global_state->hostname, ESPG::getESPVersion(),
       global_state->hostname, global_state->pm25,
       global_state->hostname, global_state->temperature,
