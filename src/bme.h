@@ -64,7 +64,7 @@ namespace BME {
 
     last_measurement = {
       .temperature = bme.readTemperature(),
-      .pressure = bme.readPressure(),
+      .pressure = bme.readPressure() / (float)100.0, // save as hPa
       .humidity = bme.readHumidity()
     };
 
