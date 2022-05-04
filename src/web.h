@@ -47,10 +47,10 @@ namespace Web {
 
   inline void send_cors_headers() {
     // We don't want CORS for an air quality monitor...
-    server->sendHeader("Access-Control-Allow-Origin", "*");
-    server->sendHeader("Access-Control-Max-Age", "10000");
-    server->sendHeader("Access-Control-Allow-Methods", "PUT,POST,GET,OPTIONS");
-    server->sendHeader("Access-Control-Allow-Headers", "*");
+    server->sendHeader(F("Access-Control-Allow-Origin"), F("*"));
+    server->sendHeader(F("Access-Control-Max-Age"), F("10000"));
+    server->sendHeader(F("Access-Control-Allow-Methods"), F("PUT,POST,GET,OPTIONS"));
+    server->sendHeader(F("Access-Control-Allow-Headers"), F("*"));
   }
 
   void handle_not_found() {
