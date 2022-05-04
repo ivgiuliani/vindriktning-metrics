@@ -30,9 +30,14 @@ namespace BME {
 
   const bool setup(uint16_t measurement_delay_s = BME_DEFAULT_MEASUREMENT_DELAY) {
     Wire.begin();
-    if (!bme.begin(BME280_ADDRESS_ALTERNATE)) {
-      Serial.println("Could not find a valid BME280 sensor, check wiring!");
-      return false;
+
+    // BME280 sensors can change the I2C address depending on the manufacturer,
+    // try the default address first (0x77), if it fails revert to the alternate one (0x76)
+    if (!bme.begin(BME280_ADDRESS)) {
+      if (!bme.begin(BME280_ADDRESS_ALTERNATE)) {
+        Serial.println("Could not find a valid BME280 sensor, check wiring!");
+        return false;
+      }
     }
 
     measurement_delay = measurement_delay_s;
