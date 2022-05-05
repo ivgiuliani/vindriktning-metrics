@@ -16,11 +16,12 @@
 #include "state.h"
 #include "esp_generic.h"
 
+#include "web_index.html.h"
+
 #define LOG_REQUEST(path) Serial.printf("[GET] " path "\n")
 
 #define HTTP_STATUS_OK            (200)
 #define HTTP_STATUS_OK_NO_CONTENT (204)
-#define HTTP_MOVED_PERMANENTLY    (302)
 #define HTTP_STATUS_NOT_FOUND     (404)
 
 #define METRIC(name, type) \
@@ -74,8 +75,7 @@ namespace Web {
   void handle_root() {
     LOG_REQUEST("/");
 
-    server->sendHeader(F("Location"), F("/metrics"), true);
-    server->send(HTTP_MOVED_PERMANENTLY);
+    server->send(HTTP_STATUS_OK, "text/plain; charset=utf-8", web_index_html);
   }
 
   void handle_metrics_request() {
