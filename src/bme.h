@@ -11,6 +11,10 @@
 #  define BME_DEFAULT_MEASUREMENT_DELAY (60 * 1000) // seconds
 #endif
 
+#ifndef BME_TEMPERATURE_COMPENSATION_OFFSET
+#  define BME_TEMPERATURE_COMPENSATION_OFFSET (0)
+#endif
+
 namespace BME {
   typedef float temperature_c_t;
   typedef float pressure_hpa_t;
@@ -68,7 +72,11 @@ namespace BME {
     last_update = now;
 
     last_measurement = {
-      .temperature = bme.readTemperature(),
+      // BME280 tends to overheat itself, and being in proximity of the esp8266
+      // also increases the overall temperature. As such, we allow for a compensation
+      // offset to be defined at build time.
+      .temperature = bme.readTemperature() + BME_TEMPERATURE_COMPENSATION_OFFSET,
+
       .pressure = bme.readPressure() / (float)100.0, // save as hPa
       .humidity = bme.readHumidity()
     };
