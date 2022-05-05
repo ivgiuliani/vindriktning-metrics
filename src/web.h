@@ -74,7 +74,7 @@ namespace Web {
   void handle_root() {
     LOG_REQUEST("/");
 
-    server->sendHeader(F("Location"), F("/"), true);
+    server->sendHeader(F("Location"), F("/metrics"), true);
     server->send(HTTP_MOVED_PERMANENTLY);
   }
 
