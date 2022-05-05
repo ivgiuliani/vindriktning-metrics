@@ -75,7 +75,7 @@ namespace Web {
   void handle_root() {
     LOG_REQUEST("/");
 
-    server->send(HTTP_STATUS_OK, "text/plain; charset=utf-8", web_index_html);
+    server->send(HTTP_STATUS_OK, "text/html; charset=utf-8", web_index_html);
   }
 
   void handle_metrics_request() {
