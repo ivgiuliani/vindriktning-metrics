@@ -20,6 +20,7 @@
 
 #define HTTP_STATUS_OK            (200)
 #define HTTP_STATUS_OK_NO_CONTENT (204)
+#define HTTP_MOVED_PERMANENTLY    (302)
 #define HTTP_STATUS_NOT_FOUND     (404)
 
 #define METRIC(name, type) \
@@ -70,6 +71,13 @@ namespace Web {
     }
   }
 
+  void handle_root() {
+    LOG_REQUEST("/");
+
+    server->sendHeader(F("Location"), F("/"), true);
+    server->send(HTTP_MOVED_PERMANENTLY);
+  }
+
   void handle_metrics_request() {
     LOG_REQUEST("/metrics");
 
@@ -117,6 +125,7 @@ namespace Web {
     #endif
 
     server->onNotFound(handle_not_found);
+    server->on("/", HTTP_GET, handle_root);
     server->on("/metrics", HTTP_GET, handle_metrics_request);
     server->on("/reset", HTTP_GET, handle_factory_reset);
     server->begin();
