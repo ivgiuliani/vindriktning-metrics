@@ -8,7 +8,7 @@
 #include <Adafruit_BME280.h>
 
 #ifndef BME_DEFAULT_MEASUREMENT_DELAY
-#  define BME_DEFAULT_MEASUREMENT_DELAY (30 * 1000) // seconds
+#  define BME_DEFAULT_MEASUREMENT_DELAY (60 * 1000) // seconds
 #endif
 
 namespace BME {
