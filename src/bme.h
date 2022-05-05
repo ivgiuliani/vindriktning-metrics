@@ -75,7 +75,7 @@ namespace BME {
       // BME280 tends to overheat itself, and being in proximity of the esp8266
       // also increases the overall temperature. As such, we allow for a compensation
       // offset to be defined at build time.
-      .temperature = bme.readTemperature() + BME_TEMPERATURE_COMPENSATION_OFFSET,
+      .temperature = bme.readTemperature() + ((float)BME_TEMPERATURE_COMPENSATION_OFFSET),
 
       .pressure = bme.readPressure() / (float)100.0, // save as hPa
       .humidity = bme.readHumidity()
